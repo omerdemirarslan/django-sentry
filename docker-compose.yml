@@ -1,0 +1,15 @@
+services:
+  web:
+    tty: true
+    build: .
+    working_dir: /code
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+      SSH_KNOWN_HOSTS: ${SSH_KNOWN_HOSTS}
+      POSTGRES_HOST: host.docker.internal
+      POSTGRES_DB: local_project
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "8001:8000"
