@@ -1,6 +1,7 @@
 services:
   web:
     tty: true
+    restart: always
     build: .
     working_dir: /code
     command: python manage.py runserver 0.0.0.0:8000
@@ -13,3 +14,37 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "8001:8000"
+    volumes:
+      - .:/code
+  celery:
+    tty: true
+    restart: always
+    build: .
+    working_dir: /code
+    command: celery -A sentry_job.monitoring_jobs.celery worker
+    environment:
+      SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+      SSH_KNOWN_HOSTS: ${SSH_KNOWN_HOSTS}
+      POSTGRES_HOST: host.docker.internal
+      POSTGRES_DB: local_project
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - .:/code
+    depends_on:
+      - web
+  celery-beat:
+    build: .
+    working_dir: /code
+    command: celery -A sentry_job.monitoring_jobs beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/code
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=sentry_job.settings
+    depends_on:
+      - web
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
