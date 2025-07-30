@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from .monitoring_jobs.views import *
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('sentry-debug/', trigger_error, name='sentry-debug'),
 ]
