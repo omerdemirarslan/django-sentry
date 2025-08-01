@@ -1,25 +1,26 @@
+import sentry_sdk
+
 from .celery import app
+from sentry_sdk.crons import monitor
 
 
+# 60 saniyede bir çalışacak Celery task
 @app.task()
+@monitor(monitor_slug='monitoring-jobs')  # Sentry Cron Monitor slug
 def task_one():
-    print("10 seconds jub completed")
-    return "10 seconds jub completed"
+    msg = "60 seconds job completed"
+    print(msg)
+    return msg
 
 
+# 60 saniyede bir çalışacak Celery task
 @app.task()
+@monitor(monitor_slug='monitoring-jobs')  # Sentry Cron Monitor slug
 def task_two():
-    print("10 seconds jub uncompleted")
-    return "10 seconds jub uncompleted"
+    msg = "60 seconds job started"
+    print(msg)
 
+    # Burada bilinçli olarak hata fırlatıyoruz
+    result = 1 / 0  # ZeroDivisionError
 
-@app.task()
-def task_three():
-    print("60 seconds jub completed")
-    return "60 seconds jub completed"
-
-
-@app.task()
-def task_four():
-    print("60 seconds jub uncompleted")
-    return "60 seconds jub uncompleted"
+    return f"Result: {result}"

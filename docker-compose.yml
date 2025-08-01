@@ -1,4 +1,16 @@
 services:
+  local_project:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    restart: always
+    environment:
+      - POSTGRES_DB=local_project
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - local_project_data:/var/lib/postgresql/data/
+    ports:
+      - '5434:5432'
   web:
     tty: true
     restart: always
@@ -12,6 +24,8 @@ services:
       POSTGRES_DB: local_project
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    depends_on:
+      - local_project
     ports:
       - "8001:8000"
     volumes:
@@ -45,6 +59,11 @@ services:
     depends_on:
       - web
   redis:
-    image: redis:7.2
+    image: redis:7.2-alpine
+    container_name: redis
+    restart: always
     ports:
       - "6379:6379"
+
+volumes:
+  local_project_data:
