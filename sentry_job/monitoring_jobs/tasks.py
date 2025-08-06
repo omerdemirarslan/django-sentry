@@ -8,7 +8,7 @@ from sentry_sdk.crons import monitor
 @app.task()
 @monitor(monitor_slug='monitoring-jobs')  # Sentry Cron Monitor slug
 def task_one():
-    msg = "60 seconds job completed"
+    msg = "10 seconds job completed"
     print(msg)
     return msg
 

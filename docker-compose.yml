@@ -11,6 +11,17 @@ services:
       - local_project_data:/var/lib/postgresql/data/
     ports:
       - '5434:5432'
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "6379:6379"
   web:
     tty: true
     restart: always
@@ -25,7 +36,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     depends_on:
-      - local_project
+      redis:
+        condition: service_healthy
+      local_project:
+        condition: service_started
     ports:
       - "8001:8000"
     volumes:
@@ -46,7 +60,10 @@ services:
     volumes:
       - .:/code
     depends_on:
-      - web
+      redis:
+        condition: service_healthy
+      local_project:
+        condition: service_started
   celery-beat:
     build: .
     working_dir: /code
@@ -57,13 +74,10 @@ services:
       - DEBUG=1
       - DJANGO_SETTINGS_MODULE=sentry_job.settings
     depends_on:
-      - web
-  redis:
-    image: redis:7.2-alpine
-    container_name: redis
-    restart: always
-    ports:
-      - "6379:6379"
+      redis:
+        condition: service_healthy
+      local_project:
+        condition: service_started
 
 volumes:
   local_project_data:
