@@ -24,3 +24,9 @@ def task_two():
     result = 1 / 0  # ZeroDivisionError
 
     return f"Result: {result}"
+
+
+def task_three():
+    new_task = "Kevser için yeni bir branch açtık ve bir geliştirme yaptık"
+
+    return new_task
